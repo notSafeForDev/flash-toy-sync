@@ -1,0 +1,44 @@
+{
+    "actionscriptVersion": 2,
+    
+    "csv": "https://firebasestorage.googleapis.com/v0/b/handy-gamer.appspot.com/o/zelda-midna-3.csv?alt=media&token=1f9d1488-04f7-4320-8615-a1e7c218ebfe",
+    
+    "swf": "zelda-midna.swf",
+
+    "size": {
+        "width": 550,
+        "height": 400
+    },
+
+    "fps": 30,
+
+    "startFrame": 256,
+
+    "modifiers": [],
+
+    "sections": [
+        { // Link stop
+            "1034": 100
+        },
+        { // Link grind
+            "1091": 51,
+            "1107": 13,
+            "1122": 51
+        },
+        { // Link bounce
+            "1131": 12,
+            "1142": 63,
+            "1145": 33,
+            "1156": 12
+        },
+        { // Link handjob
+            "1165": 77,
+            "1171": 18,
+            "1176": 76,
+            "1181": 24,
+            "1186": 94,
+            "1191": 27,
+            "1196": 77
+        }
+    ]
+}

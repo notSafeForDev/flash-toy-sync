@@ -1,0 +1,16 @@
+// For users
+[X] Message when no device is connected
+[X] Animation for downloading CSV
+[X] Sync play if it jumps to any point between the first and last keyframe in a section
+[X] Fullscreen button
+
+// For editors
+[X] Buttons for jumping to the first and last frame in a loop
+[X] Interpolate synced positions
+
+[ ] Display position next to the position indicator marker
+[ ] Display other marked positions
+[ ] Way to remove marked positions
+
+// For both
+[X] Ability to skip intro
