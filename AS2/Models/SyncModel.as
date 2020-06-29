@@ -6,6 +6,7 @@ class Models.SyncModel {
 	static var markedPositions : Array = [];
 	static var sections : Array = [];
 	static var sectionMaxRepeatCount = 3;
+	static var fps : Number = -1;
 	
 	static function markPosition(_position : Number, _frame : Number) {
 		_position = Math.min(100, _position);
@@ -40,10 +41,13 @@ class Models.SyncModel {
 		if (sectionIndex >= 0) {
 			copyPositionsFromSectionToMarkedPositions(sectionIndex);
 			sections.splice(sectionIndex, 1);
+			trace("splice section: " + sectionIndex);
 			var markedPositionIndex : Number = getMarkedPositionIndexOnFrame(_frame);
 			if (markedPositionIndex >= 0) {
 				markedPositions.splice(markedPositionIndex, 1);
 			}
+			
+			sortMarkedPositions();
 		}
 	}
 	
@@ -131,7 +135,23 @@ class Models.SyncModel {
 	}
 	
 	static function hasPositionOnFrame(_frame : Number) : Boolean {
-		return getPositionOnFrame(_frame) >= 0;
+		// getPositionOnFrame >= 0 should not be used, as -1 can be used for both when there's no position and when it's supposed to be stopped
+		
+		for (var i : Number = 0; i < markedPositions.length; i++) {
+			if (markedPositions[i].frame == _frame) {
+				return true;
+			}
+		}
+		
+		for (var i : Number = 0; i < sections.length; i++) {
+			for (var key : String in sections[i]) {
+				if (parseFloat(key) == _frame) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
 	}
 	
 	static function sortMarkedPositions() {
@@ -191,6 +211,41 @@ class Models.SyncModel {
 		return Math.floor(_frame / 10).toString();
 	}
 	
+	// Not used, but kept just in case
+	static function getCSVMiliseconds(_firstFrame : Number, _miliseconds : Number, _milisecondsEnd) : Number {
+		var id : String = getIdForFrame(_firstFrame);
+		return parseFloat(id + padStartOfValue(_miliseconds, _milisecondsEnd.toString().length));
+	}
+	
+	static function getCSVMiliseconds2(_sectionIndex : Number, _frame : Number) : Number {
+		var firstFrame : Number = getStartFrameForSection(_sectionIndex);
+		var startMiliseconds = (firstFrame / fps) * 1000;
+		var startCSVMiliseconds = startMiliseconds * sectionMaxRepeatCount;
+		var miliseconds = (_frame / fps) * 1000;
+		
+		return Math.floor(startCSVMiliseconds + (miliseconds - startMiliseconds));
+	}
+	
+	static function getFramesInSection(_sectionIndex : Number) : Array {
+		var frames : Array = [];
+		for (var key : String in sections[_sectionIndex]) {
+			frames.push(parseFloat(key));
+		}
+		
+		frames.reverse(); // We reverse the array as the keys are reversed in the section, probaby due to JSON.parse
+		return frames;
+	}
+	
+	static function getPositionsInSection(_sectionIndex : Number) : Array {
+		var positions : Array = [];
+		for (var key : String in sections[_sectionIndex]) {
+			positions.push(sections[_sectionIndex][key]);
+		}
+		
+		positions.reverse(); // We reverse the array as the keys are reversed in the section, probaby due to JSON.parse
+		return positions;
+	}
+	
 	static function copyPositionsFromSectionToMarkedPositions(_sectionIndex : Number) {
 		var section : Object = sections[_sectionIndex];
 		for (var key : String in section) {
@@ -199,5 +254,13 @@ class Models.SyncModel {
 				position: section[key]
 			});
 		}
+	}
+	
+	static function padStartOfValue(_value : Number, _length : Number) : String {
+		var valueString : String = _value.toString();
+		while (valueString.length < _length) {
+			valueString = "0" + valueString;
+		}
+		return valueString;
 	}
 }

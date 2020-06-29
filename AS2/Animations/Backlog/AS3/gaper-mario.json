@@ -1,0 +1,32 @@
+{
+    // The version of Actionscript that the swf uses
+    "actionscriptVersion": 2,
+    
+    // The url to the csv file with the sync data
+    "csv": "",
+    
+    // The file name of the swf
+    "swf": "gaper-mario.swf",
+
+    // The width and height of the swf
+    "size": {
+        "width": 550,
+        "height": 400
+    },
+
+    // The frame rate of the swf
+    "fps": 30,
+
+    // The frame the animation starts on, or the frame for the main menu
+    "startFrame": 1,
+
+    // Used to interact directly with the code of the swf
+    "modifiers": [
+
+    ],
+
+    // Different parts of the animations, such as loops and transitions
+    "sections": [
+
+    ]
+}

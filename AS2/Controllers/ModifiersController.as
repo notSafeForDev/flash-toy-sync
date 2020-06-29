@@ -18,6 +18,12 @@ class Controllers.ModifiersController {
 		
 		GlobalEvents.events.animation.frameUpdate.listen(function(e : Object) {
 			self.counter++;
+			/* for (var key : String in self.animationContainer) {
+				if (typeof self.animationContainer[key] == "number") {
+					trace(key + ": " + self.animationContainer[key]);
+				}
+			} */
+			
 			for (var i : Number = 0; i < AnimationModel.modifiers.length; i++) {
 				self.applyModifier(AnimationModel.modifiers[i]);
 			}

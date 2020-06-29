@@ -15,7 +15,6 @@ class Controllers.SyncController {
 	var lastFrame : Number = -1;
 
 	var currentSectionStartFrame : Number = -1;
-	var currentSectionLastPlayedFrame : Number = -1;
 	var currentSectionRepeatCount : Number = 0;
 	
 	function SyncController() {
@@ -59,6 +58,7 @@ class Controllers.SyncController {
 		animationData = e.animationData;
 		
 		SyncModel.sections = animationData.sections;
+		SyncModel.fps = animationData.fps;
 		
 		handyCommands.prepareSync(e.animationData.csv, function(serverResponse : Object) {
 			trace(JSON.stringify(serverResponse));
@@ -67,7 +67,7 @@ class Controllers.SyncController {
 	}
 	
 	function onAnimationFrameUpdate(e : Object) {
-		if (e.frame == lastFrame) {
+		if (e.frame == lastFrame || AnimationModel.isForceStopped == true) {
 			stopPlaying();
 			return;
 		}
@@ -76,7 +76,10 @@ class Controllers.SyncController {
 		var isStartOfSection : Boolean = SyncModel.isStartOfSectionAtFrame(e.frame);
 		var sectionIndex : Number = SyncModel.getSectionIndexForFrame(e.frame);
 		
-		if (haveJumpedFrame == false && isStartOfSection == true) {
+		if (SyncModel.getInterpolatedPositionAtFrame(e.frame) < 0) {
+			stopPlaying();
+		}
+		else if (haveJumpedFrame == false && isStartOfSection == true) {
 			onPlayingSection(sectionIndex, e.frame);
 		}
 		else if (haveJumpedFrame == true && sectionIndex >= 0) {
@@ -91,19 +94,15 @@ class Controllers.SyncController {
 	
 	function onPlayingSection(_index : Number, _frame : Number) {
 		var startFrame : Number = SyncModel.getStartFrameForSection(_index);
-		var sectionId : String = SyncModel.getIdForFrame(startFrame);
-		var seconds : Number = _frame / animationData.fps;
-		var miliseconds : Number = Math.floor(seconds * 1000);
 		
 		if (currentSectionStartFrame == startFrame) {
 			currentSectionRepeatCount = (currentSectionRepeatCount + 1) % SyncModel.sectionMaxRepeatCount;
 		} else {
 			currentSectionRepeatCount = 0;
-			currentSectionLastPlayedFrame = startFrame;
 		}
 		
 		if (currentSectionRepeatCount == 0) {
-			handyCommands.syncPlay(parseFloat(sectionId + miliseconds));
+			handyCommands.syncPlay(SyncModel.getCSVMiliseconds2(_index, AnimationModel.currentFrame));
 		}
 		
 		isPlaying = true;
@@ -115,56 +114,55 @@ class Controllers.SyncController {
 	}
 	
 	function onExportPositions() {
-		trace("{");
+		var jsonLines : Array = [];
+		
+		jsonLines.push("{");
 		for (var i : Number = 0; i < SyncModel.markedPositions.length; i++) {
 			var line : String = '\t"' + SyncModel.markedPositions[i].frame + '": ' + SyncModel.markedPositions[i].position;
 			if (i < SyncModel.markedPositions.length - 1) {
 				line += ",";
 			}
-			trace(line);
+			jsonLines.push(line);
 		}
-		trace("}");
+		jsonLines.push("}");
+		
+		var jsonString : String = jsonLines.join("\n");
+		trace(jsonString);
+		GlobalEvents.events.export.json.emit({json: jsonString});
 		
 		SyncModel.addSectionFromMarkedPositions();
 		SyncModel.markedPositions = [];
 	}
 	
 	function onExportCSV() {
-		trace('"{""type"":""handy""}",');
+		var csvLines : Array = [];
+		
+		csvLines.push('"{""type"":""handy""}",');
 			
 		for (var i : Number = 0; i < SyncModel.sections.length; i++) {
-			var sectionKeys : Array = ObjectUtil.getKeys(SyncModel.sections[i]);
-			var firstFrame : Number = parseFloat(sectionKeys[sectionKeys.length - 1]);
-			var lastFrame : Number = parseFloat(sectionKeys[0]);
-			var id : String = SyncModel.getIdForFrame(firstFrame);
-			var sectionDurationMiliseconds : Number = Math.floor(((lastFrame - firstFrame) / AnimationModel.fps) * 1000);
+			var frames : Array = SyncModel.getFramesInSection(i);
+			var positions : Array = SyncModel.getPositionsInSection(i);
+			var framesDelta : Number = frames[frames.length - 1] - frames[0];
 			
 			for (var iRepeat : Number = 0; iRepeat < SyncModel.sectionMaxRepeatCount; iRepeat++) {
-				var timeOffset : Number = iRepeat * sectionDurationMiliseconds;
-				
-				// We iterate in reverse as the keys are in reverse order in the sections, probably due to JSON.parse
-				for (var iKey : Number = sectionKeys.length - 1; iKey >= 0; iKey--) {
-					var key = sectionKeys[iKey];
-					var miliseconds : Number = Math.floor((parseFloat(key) / AnimationModel.fps) * 1000) + timeOffset;
-					var line : String = id + miliseconds + "," + SyncModel.sections[i][key];
-					trace(line);
+				for (var iFrame : Number = 0; iFrame < frames.length; iFrame++) {
+					var csvMiliseconds : Number = SyncModel.getCSVMiliseconds2(i, framesDelta * iRepeat + frames[iFrame]);
+					csvLines.push(csvMiliseconds + "," + positions[iFrame]);
 				}
 			}
-			
-			// We iterate in reverse as the keys are in reverse order in the sections, probably due to JSON.parse
-			for (var iKey : Number = sectionKeys.length - 1; iKey >= 0; iKey--) {
-				var key = sectionKeys[iKey];
-				var miliseconds : Number = Math.floor((parseFloat(key) / AnimationModel.fps) * 1000);
-				var line : String = id + miliseconds + "," + SyncModel.sections[i][key];
-				trace(line);
-			}
 		}
+		
+		var csv : String = csvLines.join("\n");
+		trace(csv);
+		GlobalEvents.events.export.csv.emit({csv: csv});
 	}
 	
 	function stopPlaying() {
 		if (isPlaying == false) {
 			return;
 		}
+		
+		trace("stopping");
 		
 		// This also stops the "video" sync
 		handyCommands.send(100, 1000);

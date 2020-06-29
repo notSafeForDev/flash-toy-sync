@@ -159,6 +159,10 @@ class Controllers.AnimationController {
 		steppedFromFrame = -1;
 		steppedToFrame = -1;
 		
+		if (animationContainer._xscale == 100 || animationContainer._yscale == 100) {
+			resizeAnimation();
+		}
+		
 		AnimationModel.currentFrame = frame;
 		
 		GlobalEvents.events.animation.frameUpdate.emit({frame: frame});

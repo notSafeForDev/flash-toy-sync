@@ -45,6 +45,10 @@ class Global.GlobalEvents {
 				down: new CustomEvent(),
 				play: new CustomEvent(),
 				remove: new CustomEvent()
+			},
+			export: {
+				json: new CustomEvent(),
+				csv: new CustomEvent()
 			}
 		}
 	}

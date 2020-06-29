@@ -82,6 +82,13 @@ class Controllers.ControlPanelController {
 		GlobalEvents.events.animation.resumed.listen(function() {
 			self.showPlayButton(false);
 		});
+		
+		GlobalEvents.events.export.json.listen(function(e : Object) {
+			self.container.TextOutput.text = e.json;
+		});
+		GlobalEvents.events.export.csv.listen(function(e : Object) {
+			self.container.TextOutput.text = e.csv;
+		});
 	}
 	
 	function showPlayButton(_state : Boolean) {
