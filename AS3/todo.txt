@@ -1,0 +1,11 @@
+TODO: 
+[X] When JSON is exported, the section is cleared if there wasn't a section there before
+[X] Clear output panel when new position is marked
+[X] Make it easier to see that text is copied in the output panel
+[X] Fix issue where hierarchy doesn't reset height when fields are hidden
+[X] Add borders that fit right around the animation
+
+[ ] Something about when a MovieClip is no longer available, but still technically selected
+[ ] Show path to selected child and make it selectable
+[ ] Do something about the instance names being randomized
+[ ] User config option for including non penis actions, such as oral or fingering

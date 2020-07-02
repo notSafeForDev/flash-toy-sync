@@ -1,0 +1,32 @@
+{
+    "swf": "karas-nightlife.swf",
+    "actionscriptVersion": 3,
+    "width": 740,
+    "height": 720,
+    "fps": 30,
+    
+    "csv": "",
+
+    "parts": [
+        {
+            "path": ["#1", "##1"],
+            "activeOn": {
+                "#1": {
+                    "from": 150,
+                    "to": 169
+                }
+            },
+            "sections": [
+                {
+                    "1": 77,
+                    "11": 66,
+                    "26": 22,
+                    "31": 13,
+                    "39": 21,
+                    "55": 68,
+                    "60": 75
+                }
+            ]
+        }
+    ]
+}
