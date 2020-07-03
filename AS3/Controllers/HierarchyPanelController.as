@@ -10,6 +10,7 @@
 	import Global.GlobalEvents;
 	import Debugging.Debug;
 	import Types.ChildInfo;
+	import Types.SyncSection;
 	import Views.Panel;
 	import Views.ScrollableArea;
 	import Views.HierarchyField;
@@ -24,6 +25,7 @@
 		var hierarchyFields : Vector.<HierarchyField> = new Vector.<HierarchyField>();
 		var hierarchyFieldsVisible : Number = 0;
 		var childSelected : MovieClip;
+		var randomInstanceNamePrefix : String = "instance";
 		
 		function HierarchyPanelController(_root : MovieClip, _hierarchyPanel : MovieClip) {
 			root = _root;
@@ -56,12 +58,14 @@
 				});
 				
 				hierarchyFields.push(hierarchyField);
+				hierarchyContent.addChild(hierarchyField);
 			}
 			else {
 				hierarchyField = hierarchyFields[hierarchyFieldsVisible];
 			}
 			
-			hierarchyContent.addChild(hierarchyField);
+			hierarchyField.y = hierarchyFieldsVisible * hierarchyField.height;
+			hierarchyField.visible = true;
 			hierarchyField.textName.text = _text;
 			hierarchyField.textFrame.text = _child.currentFrame + "/" + _child.totalFrames;
 			hierarchyField.animationChild = _child;
@@ -69,22 +73,24 @@
 		}
 		
 		function clearHierarchy() {
-			hierarchyContent.removeChildren();
+			for (var i = 0; i < hierarchyFields.length; i++) {
+				hierarchyFields[i].y = 0;
+				hierarchyFields[i].visible = false;
+			}
 			hierarchyFieldsVisible = 0;
 		}
 		
 		function getChildInfo(_object : MovieClip) : Vector.<ChildInfo> {
-			return recursiveGetChildInfo(_object, new Vector.<ChildInfo>, new Vector.<String>);
+			return recursiveGetChildInfo(_object, new Vector.<ChildInfo>);
 		}
 		
-		function recursiveGetChildInfo(_object : MovieClip, _childInfo : Vector.<ChildInfo>, _path : Vector.<String>) : Vector.<ChildInfo> {
-			for (var i = 0; i < _object.numChildren; i++) {
+		function recursiveGetChildInfo(_object : MovieClip, _childInfo : Vector.<ChildInfo>) : Vector.<ChildInfo> {
+			for (var i : int = 0; i < _object.numChildren; i++) {
 				var child : DisplayObject = _object.getChildAt(i);
 				if (child is MovieClip) {
-					_path.push(child.name);
-					_childInfo.push(new ChildInfo(MovieClip(child), _path.slice()));
-					recursiveGetChildInfo(MovieClip(child), _childInfo, _path);
-					_path.pop();
+					var childMovieClip : MovieClip = MovieClip(child);
+					_childInfo.push(new ChildInfo(childMovieClip, SyncSection.getChildPath(childMovieClip)));
+					recursiveGetChildInfo(childMovieClip, _childInfo);
 				}
 			}
 			
@@ -102,6 +108,8 @@
 			
 			for (i = 0; i < childInfo.length; i++) {
 				if (childInfo[i].child.totalFrames == 1 && hasNestedAnimations(childInfo[i].child) == false) {
+					childInfo.splice(i, 1);
+					i--;
 					continue;
 				}
 				

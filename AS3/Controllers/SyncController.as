@@ -38,7 +38,8 @@
 			});
 			
 			GlobalEvents.events.animation.loaded.listen(function(e : Object) {
-				SyncModel.childSelected = e.animation;
+				SyncModel.animation = AnimationModel.animation;
+				SyncModel.childSelected = AnimationModel.animation;
 				addKeyboardEventListeners();
 			});
 			
@@ -48,6 +49,10 @@
 			
 			GlobalEvents.events.hierarchyPanel.childSelected.listen(function(e : Object) {
 				SyncModel.childSelected = e.child;
+				var path : Array = SyncSection.getChildPath(e.child);
+				trace(path);
+				var childFromPath : MovieClip = SyncSection.getChildFromPath(AnimationModel.animation, path);
+				trace(childFromPath == e.child);
 				GlobalEvents.events.sync.childSelected.emit({child: e.child});
 			});
 			
@@ -83,6 +88,7 @@
 				for (var iSection : Number = 0; iSection < data.parts[iPart].sections.length; iSection++) {
 					var section : SyncSection = new SyncSection(data.parts[iPart].path);
 					SyncModel.sections.push(section);
+					section.activeWhile = data.parts[iPart].activeWhile;
 					for (var frameKey : String in data.parts[iPart].sections[iSection]) {
 						section.setPosition(parseInt(frameKey), data.parts[iPart].sections[iSection][frameKey]);
 					}
@@ -96,24 +102,24 @@
 					GlobalEvents.events.status.update.emit({status: e.error});
 				}
 				GlobalEvents.events.syncData.loaded.emit();
-			}); 
+			});
 		}
 		
 		function onAnimationFrameUpdate() {
-			var sectionIndex : int = getCurrentSectionIndex();
+			var sectionIndex : int = SyncModel.getCurrentSectionIndex();
 			
-			if (sectionIndex < 0) {
+			if (sectionIndex < 0 || AnimationModel.isForceStopped == true) {
 				if (currentSectionIndex >= 0) {
 					handyAPI.syncStop();
 					trace("stop");
 				}
-				currentSectionIndex = sectionIndex;
+				currentSectionIndex = -1;
 				return;
 			}
 			
 			if (sectionIndex != currentSectionIndex) {
 				currentSectionIndex = sectionIndex;
-				currentSectionChild = getChildFromPath(SyncModel.sections[sectionIndex].childPath);
+				currentSectionChild = SyncSection.getChildFromPath(AnimationModel.animation, SyncModel.sections[sectionIndex].childPath);
 				currentSectionRepeatCount = 0;
 				currentSectionMaxRepeatCount = SyncModel.getNumberOfTimesToRepeatSection(sectionIndex);
 				lastFrame = currentSectionChild.currentFrame;
@@ -147,7 +153,11 @@
 			}
 			
 			var hadNoMarkedSection : Boolean = SyncModel.markedSection == null;
-			var sectionIndex : int = SyncModel.getSectionIndexOnFrame(AnimationModel.childCurrentFrame);
+			
+			var sectionIndex : int = SyncModel.getCurrentSectionIndex();
+			if (sectionIndex >= 0 && SyncModel.sections[sectionIndex].isForChild(AnimationModel.childSelected) == false) {
+				sectionIndex = -1;
+			}
 			
 			if (hadNoMarkedSection == true) {
 				SyncModel.markedSection = new SyncSection(SyncSection.getChildPath(AnimationModel.childSelected));
@@ -159,6 +169,7 @@
 			}
 			
 			if (hadNoMarkedSection == true) {
+				SyncModel.markedSectionInsertIndex = sectionIndex;
 				if (sectionIndex < 0) {
 					SyncModel.sections.push(SyncModel.markedSection);
 				}
@@ -173,7 +184,10 @@
 		}
 		
 		function onPositionRemoved() {
-			var sectionIndex : int = SyncModel.getSectionIndexOnFrame(AnimationModel.childCurrentFrame);
+			var sectionIndex : int = SyncModel.getCurrentSectionIndex();
+			if (sectionIndex >= 0 && SyncModel.sections[sectionIndex].isForChild(AnimationModel.childSelected) == false) {
+				sectionIndex = -1;
+			}
 			
 			if (SyncModel.markedSection != null && SyncModel.markedSection.isForChild(AnimationModel.childSelected) == false) {
 				throw "Unable to remove sync position, there's currently a marked section with a different child than the selected one";
@@ -231,7 +245,7 @@
 			for (var iSection : int = 0; iSection < SyncModel.sections.length; iSection++) {
 				var section : SyncSection = SyncModel.sections[iSection];
 				var repeatSection : int = SyncModel.getNumberOfTimesToRepeatSection(iSection);
-				var framesDelta : int = section.lastFrame - section.firstFrame;
+				var framesDelta : int = (section.lastFrame - section.firstFrame) + 1;
 				
 				for (var iRepeat : int = 0; iRepeat < repeatSection; iRepeat++) {
 					var frameOffset : Number = framesDelta * iRepeat;
@@ -247,32 +261,6 @@
 			var csv : String = csvLines.join("\n");
 			GlobalEvents.events.export.csv.emit({csv: csv});
 			trace(csv);
-		}
-		
-		function getCurrentSectionIndex() : int {
-			for (var i : int = 0; i < SyncModel.sections.length; i++) {
-				var section : SyncSection = SyncModel.sections[i];
-				var child : MovieClip = getChildFromPath(section.childPath);
-				
-				if (child != null && section.isFrameWithinSection(child.currentFrame) == true) {
-					return i;
-				}
-			}
-			
-			return -1;
-		}
-		
-		function getChildFromPath(_childPath : Array) : MovieClip {
-			var currentChild : MovieClip = AnimationModel.animation;
-			
-			for (var i : int = 0; i < _childPath.length; i++) {
-				currentChild = MovieClip(currentChild.getChildByName(_childPath[i]));
-				if (currentChild == null) {
-					return null;
-				}
-			}
-			
-			return currentChild;
 		}
 	}
 }

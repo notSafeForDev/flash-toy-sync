@@ -5,9 +5,11 @@
 	public class ChildInfo {
 		
 		public var child : MovieClip;
-		public var path : Vector.<String>;
+		public var path : Array;
 		
-		function ChildInfo(_child : MovieClip, _path : Vector.<String>) {
+		public static var randomInstanceNamePrefix : String = "instance";
+		
+		function ChildInfo(_child : MovieClip, _path : Array) {
 			child = _child;
 			path = _path;
 		}

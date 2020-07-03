@@ -12,14 +12,10 @@
 
     "fps": 30,
 
-    "startFrame": 500, // 248
+    "startFrame": 248,
 
     "modifiers": [
-        {
-            "action": "increase",
-            "variable": "countVar",
-            "by": 100
-        }
+        
     ],
 
     "sections": [

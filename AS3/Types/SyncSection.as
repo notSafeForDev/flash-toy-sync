@@ -8,9 +8,12 @@
 	public class SyncSection {
 		
 		public var childPath : Array;
+		public var activeWhile : Object = {};
 		public var firstFrame : Number = -1;
 		public var lastFrame : Number = -1;
 		public var positions : Vector.<SyncPosition> = new Vector.<SyncPosition>();
+		
+		public static var randomInstanceNamePrefix : String = "instance";
 		
 		function SyncSection(_childPath : Array) {
 			childPath = _childPath;
@@ -19,13 +22,59 @@
 		public static function getChildPath(_child : MovieClip) : Array {
 			var path : Array = [];
 			var currentChild : MovieClip = _child;
+			var children : Vector.<MovieClip> = new Vector.<MovieClip>();
+			children.push(currentChild);
 			
 			while (currentChild.parent != null && currentChild.parent is MovieClip) {
-				path.push(currentChild.name);
 				currentChild = MovieClip(currentChild.parent);
+				children.push(currentChild);
+			}
+			
+			children.reverse();
+			
+			// Starting from 1 to not include root
+			for (var i = 1; i < children.length; i++) {
+				var name : String = children[i].name;
+				
+				if (name.indexOf(randomInstanceNamePrefix) == 0) {
+					name = "";
+					while (name.length < i) {
+						name += "#";
+					}
+					name += children[i].parent.getChildIndex(children[i]);
+				}
+				
+				path.push(name);
 			}
 			
 			return path;
+		}
+		
+		public static function getChildFromPath(_root : MovieClip, _path : Array) : MovieClip {
+			var currentChild : MovieClip = _root;
+			
+			for (var i : int = 0; i < _path.length; i++) {
+				var pathCurrent : String = _path[i];
+				if (pathCurrent.indexOf("#") == 0) {
+					var lastHashIndex : int = pathCurrent.lastIndexOf("#");
+					var childIndex : int = parseInt(pathCurrent.substr(lastHashIndex + 1));
+					if (childIndex < currentChild.numChildren && currentChild.getChildAt(childIndex) is MovieClip) {
+						currentChild = MovieClip(currentChild.getChildAt(childIndex));
+					}
+					else {
+						return null;
+					}
+				}
+				else {
+					currentChild = MovieClip(currentChild.getChildByName(pathCurrent));
+				}
+				
+				if (currentChild == null) {
+					return null;
+				}
+			}
+			
+			return currentChild;
 		}
 		
 		public function isForChild(_child : MovieClip) : Boolean {

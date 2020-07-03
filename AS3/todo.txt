@@ -5,7 +5,9 @@ TODO:
 [X] Fix issue where hierarchy doesn't reset height when fields are hidden
 [X] Add borders that fit right around the animation
 
+[ ] Skip intro button
 [ ] Something about when a MovieClip is no longer available, but still technically selected
 [ ] Show path to selected child and make it selectable
 [ ] Do something about the instance names being randomized
 [ ] User config option for including non penis actions, such as oral or fingering
+[ ] Handle error when the swfPath is incorrect

@@ -26,6 +26,11 @@
 			root = _root;
 			
 			browseAnimationData(function(data : Object) {
+				if (data.error != undefined) {
+					GlobalEvents.events.status.update.emit({status: data.error});
+					return;
+				}
+								
 				animationData = data;
 				AnimationModel.fps = animationData.fps;
 				AnimationModel.width = animationData.width;
@@ -43,10 +48,16 @@
 		function loadAnimation(_fileName : String) {
 			var loader : Loader = new Loader();
 			var url : URLRequest = new URLRequest("Animations/" + _fileName);
-			root.addChildAt(loader, 0);
 			
 			function onLoaderComplete(e : Event) {
-				animation = MovieClip(loader.content);
+				try {
+					animation = MovieClip(loader.content);
+				} catch (error) {
+					GlobalEvents.events.status.update.emit({status: "Unable to load swf, the swf is not using Actionscript 3.0"});
+					return;
+				}
+				
+				root.addChildAt(loader, 0);
 				
 				resizeAnimation();
 				
@@ -64,6 +75,7 @@
 			}
 			
 			loader.contentLoaderInfo.addEventListener(Event.COMPLETE, onLoaderComplete);
+			
 			loader.load(url);
 		}
 		
@@ -73,9 +85,10 @@
 			});
 			
 			GlobalEvents.events.sync.childSelected.listen(function(e : Object) {
-				if (childSelected != null && AnimationModel.isForceStopped == true) {
+				// Could have a setting to enable this behaviour
+				/* if (childSelected != null && AnimationModel.isForceStopped == true) {
 					childSelected.play();
-				}
+				} */
 																	
 				childSelected = e.child;
 				AnimationModel.childSelected = childSelected;

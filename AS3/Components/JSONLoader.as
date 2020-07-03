@@ -21,7 +21,13 @@
 			}
 			
 			function onComplete(e : Event) {
-				_onLoaded(parse(fileReference.data.toString()));
+				try {
+					var parsed : Object = parse(fileReference.data.toString());
+				} catch (error) {
+					_onLoaded({error: error});
+					return;
+				}
+				_onLoaded(parsed);
 			}
 		}
 		
