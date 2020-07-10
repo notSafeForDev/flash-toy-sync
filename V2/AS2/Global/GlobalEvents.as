@@ -1,0 +1,52 @@
+﻿import Core.CustomEvent;
+	
+class Global.GlobalEvents {
+	
+	public static var events : Object;
+	
+	public static function init() {
+		events = {
+			userConfig: {
+				loaded: new CustomEvent()
+			},
+			animationData: {
+				loaded: new CustomEvent()
+			},
+			syncData: {
+				loaded: new CustomEvent()
+			},
+			animation: {
+				loaded: new CustomEvent(),
+				forceStopped: new CustomEvent(),
+				resumed: new CustomEvent()
+			},
+			frame: {
+				update: new CustomEvent()
+			},
+			hierarchyPanel: {
+				childSelected: new CustomEvent()
+			},
+			playControlsPanel: {
+				play: new CustomEvent(),
+				stop: new CustomEvent(),
+				stepBackwards: new CustomEvent(),
+				stepForwards: new CustomEvent()
+			},
+			positionPanel: {
+				marked: new CustomEvent()
+			},
+			exportPanel: {
+				exportJSON: new CustomEvent(),
+				refreshJSON: new CustomEvent(),
+				exportCSV: new CustomEvent()
+			},
+			export: {
+				json: new CustomEvent(),
+				csv: new CustomEvent()
+			},
+			status: {
+				update: new CustomEvent()
+			}
+		}
+	}
+}

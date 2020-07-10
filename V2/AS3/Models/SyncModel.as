@@ -95,6 +95,9 @@
 					var parentCurrentFrame : Number = MovieClipUtil.getCurrentFrame(parent);
 					var parentTotalFrames : Number = MovieClipUtil.getTotalFrames(parent);
 					
+					if (section.activeWhile[key].frame != null && parentCurrentFrame != section.activeWhile[key].frame) {
+						matchesActiveWhile = false;
+					}
 					if (section.activeWhile[key].from != null && parentCurrentFrame < section.activeWhile[key].from) {
 						matchesActiveWhile = false;
 					}
@@ -131,7 +134,7 @@
 				miliseconds.push(totalDurationMiliseconds);
 				
 				var section : SyncSection = sections[i];
-				var framesDelta : Number = (section.lastFrame - section.firstFrame) + 1;
+				var framesDelta : Number = section.lastFrame - section.firstFrame;
 				var repeatCount : Number = getNumberOfTimesToRepeatSection(i);
 				
 				totalDurationMiliseconds += milisecondsBetweenSections + getMilisecondsForFrame(framesDelta * repeatCount);

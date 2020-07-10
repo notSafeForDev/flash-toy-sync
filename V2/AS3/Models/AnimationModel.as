@@ -4,6 +4,7 @@
 	
 	public class AnimationModel {
 		
+		public static var hasData : Boolean = false;
 		public static var sourceWidth : Number;
 		public static var sourceHeight : Number;
 		

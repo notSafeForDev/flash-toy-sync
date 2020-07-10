@@ -18,8 +18,8 @@ class Core.SWFLoader {
 		fileReference.addListener(listener);
 		fileReference.browse([{description: "swf", extension: "*.swf"}]);
 		
-		listener.onSelect = function(file : FileReference) {
-			_onSelected(file.name);
+		listener.onSelect = function(_file : FileReference) {
+			_onSelected(_file.name);
 		}
 	}
 	

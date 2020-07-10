@@ -30,10 +30,10 @@
 			textCurrentFrame = _panelContainer.Content.TextCurrentFrame;
 			textLastFrame = _panelContainer.Content.TextLastFrame;
 			
-			buttonPlay.onMouseDown = onButtonPlayMouseDown;
-			buttonStop.onMouseDown = onButtonStopMouseDown;
-			buttonStepBackwards.onMouseDown = onButtonStepBackwardsMouseDown;
-			buttonStepForwards.onMouseDown = onButtonStepForwardsMouseDown;
+			buttonPlay.onMouseDown = FunctionUtil.bind(this, onButtonPlayMouseDown);
+			buttonStop.onMouseDown = FunctionUtil.bind(this, onButtonStopMouseDown);
+			buttonStepBackwards.onMouseDown = FunctionUtil.bind(this, onButtonStepBackwardsMouseDown);
+			buttonStepForwards.onMouseDown = FunctionUtil.bind(this, onButtonStepForwardsMouseDown);
 			
 			showPlayButton(false);
 			
@@ -43,7 +43,7 @@
 		}
 		
 		function addGlobalEventListeners() {
-			GlobalEvents.events.frame.update.listen(onFrameUpdate);
+			GlobalEvents.events.frame.update.listen(this, onFrameUpdate);
 		}
 		
 		function onFrameUpdate(e : Object) {

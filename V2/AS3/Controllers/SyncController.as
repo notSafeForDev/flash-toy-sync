@@ -1,11 +1,13 @@
 ﻿package Controllers {
 	
 	import flash.display.MovieClip;
+	import flash.ui.Keyboard;
 	
 	import Core.*;
 	
 	import Models.SyncModel;
 	import Models.AnimationModel;
+	import Models.UserConfigModel;
 	
 	import Components.HandyAPI;
 	
@@ -17,6 +19,8 @@
 		
 		var handyAPI : HandyAPI;
 		
+		var keyboardManager : KeyboardManager;
+		
 		var playingSectionIndex : Number = -1;
 		var playingSectionChild : MovieClip;
 		var playingSectionCurrentRepeatCount : Number = 0;
@@ -24,21 +28,25 @@
 		
 		var lastPlayedFrame : Number = -1;
 		
-		function SyncController() {
+		function SyncController(_root : MovieClip) {
 			handyAPI = new HandyAPI();
+			
+			keyboardManager = new KeyboardManager(_root);
+			keyboardManager.onKeyPressed = FunctionUtil.bind(this, onKeyPressed);
 			
 			addGlobalEventListeners();
 		}
 		
 		function addGlobalEventListeners() {
-			GlobalEvents.events.userConfig.loaded.listen(onUserConfigLoaded);
-			GlobalEvents.events.animationData.loaded.listen(onAnimationDataLoaded);
-			GlobalEvents.events.frame.update.listen(onFrameUpdate);
-			GlobalEvents.events.animation.loaded.listen(onAnimationLoaded);
-			GlobalEvents.events.hierarchyPanel.childSelected.listen(onHierarchyPanelChildSelected);
-			GlobalEvents.events.positionPanel.marked.listen(onPositionPanelMarked);
-			GlobalEvents.events.exportPanel.json.listen(onExportPanelExportJSON);
-			GlobalEvents.events.exportPanel.csv.listen(onExportPanelExportCSV);
+			GlobalEvents.events.userConfig.loaded.listen(this, onUserConfigLoaded);
+			GlobalEvents.events.animationData.loaded.listen(this, onAnimationDataLoaded);
+			GlobalEvents.events.frame.update.listen(this, onFrameUpdate);
+			GlobalEvents.events.animation.loaded.listen(this, onAnimationLoaded);
+			GlobalEvents.events.hierarchyPanel.childSelected.listen(this, onHierarchyPanelChildSelected);
+			GlobalEvents.events.positionPanel.marked.listen(this, onPositionPanelMarked);
+			GlobalEvents.events.exportPanel.exportJSON.listen(this, onExportPanelExportJSON);
+			GlobalEvents.events.exportPanel.refreshJSON.listen(this, onExportPanelRefreshJSON);
+			GlobalEvents.events.exportPanel.exportCSV.listen(this, onExportPanelExportCSV);
 		}
 		
 		function onUserConfigLoaded(e : Object) {
@@ -150,10 +158,26 @@
 			SyncModel.markedSection.setPosition(MovieClipUtil.getCurrentFrame(SyncModel.childSelected), e.position);
 		}
 		
+		function onKeyPressed(_keyCode : Number) {
+			if (UserConfigModel.editor.enabled == false) {
+				return;
+			}
+			
+			if (_keyCode == Keyboard.MINUS || _keyCode == Keyboard.NUMPAD_SUBTRACT) {
+				var currentFrame : Number = MovieClipUtil.getCurrentFrame(SyncModel.childSelected);
+				var sectionIndex : Number = SyncModel.getSectionIndexForChildSelected();
+				var hasPositionOnFrame : Boolean = SyncModel.hasPositionOnFrame();
+				if (sectionIndex >= 0 && hasPositionOnFrame == true) {
+					var section : SyncSection = SyncModel.sections[sectionIndex];
+					section.removePosition(currentFrame);
+				}
+			}
+		}
+		
 		function onStartPlayingSection() {
 			var startCSVMiliseconds : Array = SyncModel.getStartCSVMilisecondsForSections();
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(playingSectionChild);
-			var offsetMiliseconds : int = SyncModel.getMilisecondsForFrame(currentFrame - SyncModel.sections[playingSectionIndex].firstFrame);
+			var offsetMiliseconds : Number = SyncModel.getMilisecondsForFrame(currentFrame - SyncModel.sections[playingSectionIndex].firstFrame);
 			
 			handyAPI.syncPlay(startCSVMiliseconds[playingSectionIndex] + offsetMiliseconds, function(e : Object) {
 				// trace(JSON.stringify(e));
@@ -184,21 +208,25 @@
 			trace(json);
 		}
 		
+		function onExportPanelRefreshJSON(e : Object) {
+		
+		}
+		
 		function onExportPanelExportCSV(e : Object) {
 			var csvLines : Array = ['"{""type"":""handy""}",'];
 			var startMiliseconds : Array = SyncModel.getStartCSVMilisecondsForSections();
 			
-			for (var iSection : int = 0; iSection < SyncModel.sections.length; iSection++) {
+			for (var iSection : Number = 0; iSection < SyncModel.sections.length; iSection++) {
 				var section : SyncSection = SyncModel.sections[iSection];
-				var repeatCount : int = SyncModel.getNumberOfTimesToRepeatSection(iSection);
-				var framesDelta : int = (section.lastFrame - section.firstFrame) + 1;
+				var repeatCount : Number = SyncModel.getNumberOfTimesToRepeatSection(iSection);
+				var framesDelta : Number = section.lastFrame - section.firstFrame;
 				
-				for (var iRepeat : int = 0; iRepeat < repeatCount; iRepeat++) {
+				for (var iRepeat : Number = 0; iRepeat < repeatCount; iRepeat++) {
 					var frameOffset : Number = framesDelta * iRepeat;
 					
-					for (var iFrame : int = 0; iFrame < section.positions.length; iFrame++) {
-						var frameMiliseconds : int = SyncModel.getMilisecondsForFrame(frameOffset + section.positions[iFrame].frame - section.firstFrame);
-						var csvMiliseconds : int = startMiliseconds[iSection] + frameMiliseconds;
+					for (var iFrame : Number = 0; iFrame < section.positions.length; iFrame++) {
+						var frameMiliseconds : Number = SyncModel.getMilisecondsForFrame(frameOffset + section.positions[iFrame].frame - section.firstFrame);
+						var csvMiliseconds : Number = startMiliseconds[iSection] + frameMiliseconds;
 						csvLines.push(csvMiliseconds + "," + section.positions[iFrame].position);
 					}
 				}

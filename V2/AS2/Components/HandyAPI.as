@@ -45,7 +45,7 @@ class Components.HandyAPI {
 			_onSynced(JSON.parse(_data));
 		}
 		
-		loader.load(url, syncLoader, "GET");
+		loader.load(url, loader, "GET");
 	}
 	
 	public function syncPlay(_time : Number, _onPlay : Function) {
@@ -58,13 +58,13 @@ class Components.HandyAPI {
 		
 		var loader : LoadVars = new LoadVars();
 	
-		loader.onData = function(loadedPlayData : String) {
+		loader.onData = function(_data : String) {
 			if (_onPlay != undefined) {
-				_onPlay(JSON.parse(loadedPlayData));
+				_onPlay(JSON.parse(_data));
 			}
 		}
 		
-		loader.load(apiPath + "/" + connectionKey + "/syncPlay?play=true&time=" + _time, playLoader, "GET");
+		loader.load(apiPath + "/" + connectionKey + "/syncPlay?play=true&time=" + _time, loader, "GET");
 		
 		isPlayingSync = true;
 	}

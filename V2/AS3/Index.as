@@ -31,13 +31,14 @@
 			root.TextStatus.text = "";
 			
 			new AnimationController(_root.AnimationContainer);
-			new SyncController();
+			new SyncController(_root);
 			new HierarchyPanelController(_root.HierarchyPanelContainer);
 			new PlayControlsPanelController(_root.PlayControlsPanelContainer);
 			new PositionPanelController(_root.PositionPanelContainer);
 			new ExportPanelController(_root.ExportPanelContainer);
 			
-			JSONLoader.load("UserConfig.json", function(_config : Object) {
+			JSONLoader.load("UserConfig.json", FunctionUtil.bind(this, onLoad));
+			function onLoad(_config : Object) {
 				if (_config.error != null) {
 					GlobalEvents.events.status.update.emit({status: "Error: No UserConfig.json found in the base directory"});
 					return;
@@ -50,25 +51,25 @@
 				showFullscreenButton(UserConfigModel.showFullscreenButton);
 							
 				GlobalEvents.events.userConfig.loaded.emit({config: _config});
-			});
+			}
 			
 			var buttonFullscreen : UIButton = new UIButton(root.ButtonFullscreen);
-			buttonFullscreen.onMouseDown = function() {
+			buttonFullscreen.onMouseDown = FunctionUtil.bind(this, function() {
 				if (StageUtil.isWindowed(root) == true) {
 					StageUtil.makeFullscreen(root);
 				}
 				else {
 					StageUtil.makeWindowed(root);
 				}
-			}
+			});
 			
 			addGlobalEventListeners();
 		}
 		
 		function addGlobalEventListeners() {
-			GlobalEvents.events.animationData.loaded.listen(onAnimationDataLoaded);
-			GlobalEvents.events.animation.loaded.listen(onAnimationLoaded);
-			GlobalEvents.events.status.update.listen(onStatusUpdate);
+			GlobalEvents.events.animationData.loaded.listen(this, onAnimationDataLoaded);
+			GlobalEvents.events.animation.loaded.listen(this, onAnimationLoaded);
+			GlobalEvents.events.status.update.listen(this, onStatusUpdate);
 		}
 		
 		function onAnimationDataLoaded(e : Object) {

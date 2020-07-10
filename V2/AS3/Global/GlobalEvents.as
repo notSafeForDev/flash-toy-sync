@@ -7,7 +7,6 @@
 		public static var events : Object;
 		
 		public static function init() {
-			
 			events = {
 				userConfig: {
 					loaded: new CustomEvent()
@@ -39,8 +38,9 @@
 					marked: new CustomEvent()
 				},
 				exportPanel: {
-					json: new CustomEvent(),
-					csv: new CustomEvent()
+					exportJSON: new CustomEvent(),
+					refreshJSON: new CustomEvent(),
+					exportCSV: new CustomEvent()
 				},
 				export: {
 					json: new CustomEvent(),

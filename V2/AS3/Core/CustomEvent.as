@@ -8,15 +8,15 @@
 			listeners = [];
 		}
 		
-		public function listen(handler : Function) {
+		public function listen(_scope : *, _handler : Function) {
 			listeners.push({
-				handler: handler, once: false 
+				handler: _handler, once: false 
 			});
 		}
 		
-		public function listenOnce(handler : Function) {
+		public function listenOnce(_scope : *, _handler : Function) {
 			listeners.push({
-				handler: handler, once: true 
+				handler: _handler, once: true 
 			});
 		}
 		

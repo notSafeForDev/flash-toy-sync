@@ -22,12 +22,16 @@ class Core.JSONLoader {
 		}
 	}
 	
-	static function load(_path : String, _onLoaded : Function) {		
+	static function load(_path : String, _onLoaded : Function) {
 		var loader : LoadVars = new LoadVars();
 		
-		loader.onData = function(loadedData) {
+		loader.onData = function(_data : String) {
+			if (_data == undefined) {
+				_onLoaded({error: _path + " not found"});
+				return;
+			}
 			try {
-				var json : Object = JSON.parse(loadedData);
+				var json : Object = JSON.parse(_data);
 				_onLoaded(json);
 			} 
 			catch (error) {

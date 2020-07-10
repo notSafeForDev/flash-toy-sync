@@ -6,6 +6,7 @@
 	import Core.*;
 	
 	import Models.AnimationModel;
+	import Models.UserConfigModel;
 	
 	import Global.GlobalEvents;
 	
@@ -21,18 +22,20 @@
 		var lastPlayedFrame : Number = -1;
 		
 		function AnimationController(_animationContainer : MovieClip) {
+			var self = this;
+			
 			animationContainer = _animationContainer;
 			
-			keyboardManager = new KeyboardManager(animationContainer.root);
-			keyboardManager.onKeyPressed = onKeyPressed;
+			keyboardManager = new KeyboardManager(animationContainer);
+			keyboardManager.onKeyPressed = FunctionUtil.bind(this, onKeyPressed);
 			
 			swfLoader = new SWFLoader();
 			
 			browseSWF(function(_fileName : String) {
-				fileName = _fileName;
+				self.fileName = _fileName;
 				var name : String = _fileName.substr(0, _fileName.lastIndexOf(".swf"));
-				loadAnimationData("Animations/" + name + ".json", function(_data : Object) {
-					onAnimationDataLoaded(_data);
+				self.loadAnimationData("Animations/" + name + ".json", function(_data : Object) {
+					self.onAnimationDataLoaded(_data);
 				});
 			});
 			
@@ -40,21 +43,25 @@
 		}
 		
 		function addGlobalEventListeners() {
-			GlobalEvents.events.syncData.loaded.listen(onSyncDataLoaded);
-			GlobalEvents.events.hierarchyPanel.childSelected.listen(onHierarchyPanelChildSelected);
-			GlobalEvents.events.playControlsPanel.play.listen(onPlayControlsPanelPlay);
-			GlobalEvents.events.playControlsPanel.stop.listen(onPlayControlsPanelStop);
-			GlobalEvents.events.playControlsPanel.stepBackwards.listen(onPlayControlsPanelStepBackwards);
-			GlobalEvents.events.playControlsPanel.stepForwards.listen(onPlayControlsPanelStepForwards);
-			GlobalEvents.events.frame.update.listen(onFrameUpdate);
+			GlobalEvents.events.syncData.loaded.listen(this, onSyncDataLoaded);
+			GlobalEvents.events.hierarchyPanel.childSelected.listen(this, onHierarchyPanelChildSelected);
+			GlobalEvents.events.playControlsPanel.play.listen(this, onPlayControlsPanelPlay);
+			GlobalEvents.events.playControlsPanel.stop.listen(this, onPlayControlsPanelStop);
+			GlobalEvents.events.playControlsPanel.stepBackwards.listen(this, onPlayControlsPanelStepBackwards);
+			GlobalEvents.events.playControlsPanel.stepForwards.listen(this, onPlayControlsPanelStepForwards);
+			GlobalEvents.events.frame.update.listen(this, onFrameUpdate);
 		}
 		
 		function onSyncDataLoaded(e : Object) {
-			loadSWF("Animations/" + fileName, onAnimationLoaded);
+			loadSWF("Animations/" + fileName, FunctionUtil.bind(this, onAnimationLoaded));
 		}
 		
 		function onKeyPressed(_key : Number) {
-			var isShiftKeyPressed : Boolean = keyboardManager.pressedKeys.indexOf(Keyboard.SHIFT) >= 0;
+			if (AnimationModel.animation == null || UserConfigModel.editor.enabled == false) {
+				return;
+			}
+			
+			var isShiftKeyPressed : Boolean = keyboardManager.isKeyPressed(Keyboard.SHIFT);
 			var currentFrame : Number = MovieClipUtil.getCurrentFrame(AnimationModel.childSelected);
 			
 			if (_key == Keyboard.LEFT || _key == Keyboard.A) {
@@ -73,11 +80,28 @@
 					stopOnFrame(currentFrame + 1);
 				}
 			}
+			
+			if (_key == Keyboard.UP || _key == Keyboard.W) {
+				AnimationModel.sourceHeight += 10;
+				fitAnimationOnScreen(AnimationModel.animation, AnimationModel.sourceWidth,  AnimationModel.sourceHeight);
+			}
+			
+			if (_key == Keyboard.DOWN || _key == Keyboard.S) {
+				AnimationModel.sourceHeight -= 10;
+				fitAnimationOnScreen(AnimationModel.animation, AnimationModel.sourceWidth,  AnimationModel.sourceHeight);
+			}
 		}
 		
 		function onAnimationDataLoaded(_data : Object) {
-			AnimationModel.sourceWidth = _data.width;
-			AnimationModel.sourceHeight = _data.height;
+			AnimationModel.hasData = _data.error == undefined;
+			
+			if (AnimationModel.hasData == true) {
+				AnimationModel.sourceWidth = _data.width;
+				AnimationModel.sourceHeight = _data.height;
+			}
+			else {
+				loadSWF("Animations/" + fileName, onAnimationLoaded);
+			}
 			
 			GlobalEvents.events.animationData.loaded.emit({data: _data});
 		}
@@ -88,7 +112,9 @@
 			
 			lastPlayedFrame = MovieClipUtil.getCurrentFrame(AnimationModel.childSelected);
 			
-			fitAnimationOnScreen(_animation, AnimationModel.sourceWidth, AnimationModel.sourceHeight);
+			if (AnimationModel.hasData == true) {
+				fitAnimationOnScreen(_animation, AnimationModel.sourceWidth, AnimationModel.sourceHeight);
+			}
 			
 			GlobalEvents.events.animation.loaded.emit();
 		}

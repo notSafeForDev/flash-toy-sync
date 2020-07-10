@@ -26,9 +26,13 @@
 			list = new UIList(_panelContainer.Content.Content, "HierarchyField");
 			
 			list.isElementsSelectable = true;
-			list.onElementSelected = onListElementSelected;
+			list.onElementSelected = FunctionUtil.bind(this, onListElementSelected);
 			
-			GlobalEvents.events.frame.update.listen(onFrameUpdate);
+			addGlobalEventListeners();
+		}
+		
+		function addGlobalEventListeners() {
+			GlobalEvents.events.frame.update.listen(this, onFrameUpdate);
 		}
 		
 		function onFrameUpdate(e : Object) {

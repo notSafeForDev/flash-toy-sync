@@ -1,6 +1,6 @@
 ﻿package Core {
 	
-	import flash.display.DisplayObject;
+	import flash.display.MovieClip;
 	import flash.events.KeyboardEvent;
 	
 	public class KeyboardManager {
@@ -10,9 +10,9 @@
 		public var onKeyPressed : Function;
 		public var onKeyReleased : Function;
 		
-		function KeyboardManager(_root : DisplayObject) {
-			_root.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) {
-				if (pressedKeys.indexOf(e.keyCode) < 0) {
+		function KeyboardManager(_child : MovieClip) {
+			_child.stage.addEventListener(KeyboardEvent.KEY_DOWN, function(e : KeyboardEvent) {
+				if (isKeyPressed(e.keyCode) == false) {
 					pressedKeys.push(e.keyCode);
 				}
 				
@@ -21,7 +21,7 @@
 				}
 			});
 			
-			_root.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) {
+			_child.stage.addEventListener(KeyboardEvent.KEY_UP, function(e : KeyboardEvent) {
 				var pressedKeyIndex : int = pressedKeys.indexOf(e.keyCode);
 				if (pressedKeyIndex >= 0) {
 					pressedKeys.splice(pressedKeyIndex, 1);
@@ -31,6 +31,10 @@
 					onKeyReleased(e.keyCode);
 				}
 			});
+		}
+		
+		public function isKeyPressed(_keyCode : Number) : Boolean {
+			return pressedKeys.indexOf(_keyCode) >= 0;
 		}
 	}
 }

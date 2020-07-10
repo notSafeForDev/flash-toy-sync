@@ -8,13 +8,17 @@
 	public class SyncSection {
 		
 		public var childPath : Array;
-		public var activeWhile : Object = {};
+		public var activeWhile : Object;
 		public var firstFrame : Number = -1;
 		public var lastFrame : Number = -1;
-		public var positions : Array = [];
+		public var positions : Array;
 		
 		function SyncSection(_childPath : Array) {
 			childPath = _childPath;
+			
+			// In AS2, Mutable variables should not be assigned above the constructor, as the original values get shared across all instances
+			positions = [];
+			activeWhile = {};
 		}
 		
 		public function isFrameWithinSection(_frame : Number) : Boolean {
@@ -35,10 +39,11 @@
 			}
 			else {
 				positions.push(new SyncPosition(_frame, _position));
-				sortPositions();
-				firstFrame = positions[0].frame;
-				lastFrame = positions[positions.length - 1].frame;
 			}
+			
+			sortPositions();
+			firstFrame = positions[0].frame;
+			lastFrame = positions[positions.length - 1].frame;
 		}
 		
 		public function removePosition(_frame : Number) {

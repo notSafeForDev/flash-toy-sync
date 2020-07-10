@@ -21,15 +21,15 @@
 			new UIDragableWindow(_panelContainer, _panelContainer.ButtonMove);
 			slider = new UISlider(_panelContainer.Content.Rod, _panelContainer.Content.Marker, false);
 			
-			slider.onStartDrag = onRodStartDrag;
-			slider.onDragging = onRodDragging;
-			slider.onStopDrag = onRodStopDrag;
+			slider.onStartDrag = FunctionUtil.bind(this, onRodStartDrag);
+			slider.onDragging = FunctionUtil.bind(this, onRodDragging);
+			slider.onStopDrag = FunctionUtil.bind(this, onRodStopDrag);
 			
 			addGlobalEventListeners();
 		}
 		
 		function addGlobalEventListeners() {
-			GlobalEvents.events.frame.update.listen(onFrameUpdate);
+			GlobalEvents.events.frame.update.listen(this, onFrameUpdate);
 		}
 		
 		function onFrameUpdate(e : Object) {
