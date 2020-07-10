@@ -1,0 +1,15 @@
+{
+    "connectionKey": "YffmR",
+    "showFullscreenButton": true,
+    "orgasmSections": {
+        "showIndicatorBefore": true,
+        "overrideSyncedStrokes": {
+            "enabled": false,
+            "strokeLength": 50,
+            "strokeDuration": 0.25
+        }
+    },
+    "editor": {
+        "enabled": true
+    }
+}

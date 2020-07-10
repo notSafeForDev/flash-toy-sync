@@ -1,4 +1,4 @@
-import flash.net.FileReference;
+﻿import flash.net.FileReference;
 import Components.JSON;
 
 class Components.JSONLoader {
