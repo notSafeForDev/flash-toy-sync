@@ -4,6 +4,7 @@ import Models.UserConfigModel;
 
 import Controllers.AnimationController;
 import Controllers.SyncController;
+import Controllers.ExportController;
 import Controllers.HierarchyPanelController;
 import Controllers.PlayControlsPanelController;
 import Controllers.PositionPanelController;
@@ -28,6 +29,7 @@ class Index {
 		
 		new AnimationController(_root.AnimationContainer);
 		new SyncController(_root);
+		new ExportController();
 		new HierarchyPanelController(_root.HierarchyPanelContainer);
 		new PlayControlsPanelController(_root.PlayControlsPanelContainer);
 		new PositionPanelController(_root.PositionPanelContainer);

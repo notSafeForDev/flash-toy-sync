@@ -83,6 +83,19 @@
 		return maxFrames;
 	}
 	
+	static function getChildIndex(_movieClip : MovieClip) : Number {
+		var i : Number = 0;
+		
+		for (var childName in _movieClip._parent) {
+			if (typeof _movieClip._parent[childName] == "movieclip") {
+				if (childName == _movieClip._name) {
+					return i;
+				}
+				i++;
+			}
+		}
+	}
+	
 	static function hasNestedAnimations(_topParent : MovieClip) : Boolean {
 		return getMaxFramesInChildren(_topParent) > 1;
 	}
@@ -150,19 +163,6 @@
 			if (typeof _movieClip[childName] == "movieclip") {
 				if (i == _index) {
 					return _movieClip[childName];
-				}
-				i++;
-			}
-		}
-	}
-	
-	private static function getChildIndex(_movieClip : MovieClip) : Number {
-		var i : Number = 0;
-		
-		for (var childName in _movieClip._parent) {
-			if (typeof _movieClip._parent[childName] == "movieclip") {
-				if (childName == _movieClip._name) {
-					return i;
 				}
 				i++;
 			}

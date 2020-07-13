@@ -44,9 +44,6 @@
 			GlobalEvents.events.animation.loaded.listen(this, onAnimationLoaded);
 			GlobalEvents.events.hierarchyPanel.childSelected.listen(this, onHierarchyPanelChildSelected);
 			GlobalEvents.events.positionPanel.marked.listen(this, onPositionPanelMarked);
-			GlobalEvents.events.exportPanel.exportJSON.listen(this, onExportPanelExportJSON);
-			GlobalEvents.events.exportPanel.refreshJSON.listen(this, onExportPanelRefreshJSON);
-			GlobalEvents.events.exportPanel.exportCSV.listen(this, onExportPanelExportCSV);
 		}
 		
 		function onUserConfigLoaded(e : Object) {
@@ -104,14 +101,20 @@
 				if (handyAPI.isPlayingSync == true) {
 					handyAPI.syncStop();
 				}
+				SyncModel.playingSectionChild = null;
 				playingSectionIndex = -1;
 				return;
 			}
 			
+			var section : SyncSection = SyncModel.sections[sectionIndexToPlay];
+			
+			// It's important that we refresh the child each frame, for cases where the movieClip is changed, but the instance name stays the same
+			// Or where a loop changes between different movieClips with identical motion, in which case we want to use child index instead of instance name
+			playingSectionChild = MovieClipUtil.getChildFromPath(SyncModel.animation, section.childPath);
+			SyncModel.playingSectionChild = playingSectionChild;
+			
 			if (sectionIndexToPlay != playingSectionIndex) {
-				var section : SyncSection = SyncModel.sections[sectionIndexToPlay];
 				playingSectionIndex = sectionIndexToPlay;
-				playingSectionChild = MovieClipUtil.getChildFromPath(SyncModel.animation, section.childPath);
 				playingSectionCurrentRepeatCount = 0;
 				playingSectionMaxRepeatCount = SyncModel.getNumberOfTimesToRepeatSection(sectionIndexToPlay);
 				lastPlayedFrame = MovieClipUtil.getCurrentFrame(playingSectionChild);
@@ -182,59 +185,6 @@
 			handyAPI.syncPlay(startCSVMiliseconds[playingSectionIndex] + offsetMiliseconds, function(e : Object) {
 				// trace(JSON.stringify(e));
 			});
-		}
-		
-		function onExportPanelExportJSON(e : Object) {
-			if (SyncModel.markedSection == null) {
-				return;
-			}
-			
-			var jsonLines : Array = [];
-			
-			jsonLines.push("{");
-			for (var i : Number = 0; i < SyncModel.markedSection.positions.length; i++) {
-				var line : String = '\t"' + SyncModel.markedSection.positions[i].frame + '": ' + SyncModel.markedSection.positions[i].position;
-				if (i < SyncModel.markedSection.positions.length - 1) {
-					line += ",";
-				}
-				jsonLines.push(line);
-			}
-			jsonLines.push("}");
-			
-			SyncModel.markedSection = null;
-			
-			var json : String = jsonLines.join("\n");
-			GlobalEvents.events.export.json.emit({json: json});
-			trace(json);
-		}
-		
-		function onExportPanelRefreshJSON(e : Object) {
-		
-		}
-		
-		function onExportPanelExportCSV(e : Object) {
-			var csvLines : Array = ['"{""type"":""handy""}",'];
-			var startMiliseconds : Array = SyncModel.getStartCSVMilisecondsForSections();
-			
-			for (var iSection : Number = 0; iSection < SyncModel.sections.length; iSection++) {
-				var section : SyncSection = SyncModel.sections[iSection];
-				var repeatCount : Number = SyncModel.getNumberOfTimesToRepeatSection(iSection);
-				var framesDelta : Number = section.lastFrame - section.firstFrame;
-				
-				for (var iRepeat : Number = 0; iRepeat < repeatCount; iRepeat++) {
-					var frameOffset : Number = framesDelta * iRepeat;
-					
-					for (var iFrame : Number = 0; iFrame < section.positions.length; iFrame++) {
-						var frameMiliseconds : Number = SyncModel.getMilisecondsForFrame(frameOffset + section.positions[iFrame].frame - section.firstFrame);
-						var csvMiliseconds : Number = startMiliseconds[iSection] + frameMiliseconds;
-						csvLines.push(csvMiliseconds + "," + section.positions[iFrame].position);
-					}
-				}
-			}
-			
-			var csv : String = csvLines.join("\n");
-			GlobalEvents.events.export.csv.emit({csv: csv});
-			trace(csv);
 		}
 	}
 }

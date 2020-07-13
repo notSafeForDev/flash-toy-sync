@@ -11,6 +11,7 @@
 		public var activeWhile : Object;
 		public var firstFrame : Number = -1;
 		public var lastFrame : Number = -1;
+		public var framesDelta : Number = 0;
 		public var positions : Array;
 		
 		function SyncSection(_childPath : Array) {
@@ -44,6 +45,7 @@
 			sortPositions();
 			firstFrame = positions[0].frame;
 			lastFrame = positions[positions.length - 1].frame;
+			framesDelta = lastFrame - firstFrame + 1;
 		}
 		
 		public function removePosition(_frame : Number) {
@@ -61,6 +63,8 @@
 				firstFrame = -1;
 				lastFrame = -1;
 			}
+			
+			framesDelta = lastFrame - firstFrame + 1;
 		}
 		
 		public function hasPositionOnFrame(_frame : Number) : Boolean {

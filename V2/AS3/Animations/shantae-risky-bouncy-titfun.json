@@ -1,15 +1,15 @@
 {
-    "swf": "shantae-risky-bouncy-titfun.swf",
-    "actionscriptVersion": 3,
     "width": 720,
     "height": 720,
     "fps": 30,
     
-    "csv": "https://firebasestorage.googleapis.com/v0/b/handy-gamer.appspot.com/o/shantae-risky-bouncy-titfun.csv?alt=media&token=252f7730-560e-406b-8cc2-6e3d72cb194a",
+    "csv": "https://firebasestorage.googleapis.com/v0/b/handy-gamer.appspot.com/o/shantae-risky-bouncy-titfun-v2.csv?alt=media&token=d385c223-2777-46f8-b042-55c28bce832b",
 
     "parts": [
         {
             "path": ["mainR"],
+            "tags": [],
+            "activeWhile": {},
             "sections": [
                 {
                     "2": 34,
@@ -69,6 +69,8 @@
         },
         {
             "path": ["mainS"],
+            "tags": [],
+            "activeWhile": {},
             "sections": [
                 {
                     "2": 34,
@@ -128,6 +130,8 @@
         },
         {
             "path": ["mainROT"],
+            "tags": [],
+            "activeWhile": {},
             "sections": [
                 {
                     "2": 34,
@@ -138,7 +142,7 @@
                     "29": 33
                 },
                 {
-                    "31": 34,
+                    "30": 34,
                     "35": 77,
                     "40": 90,
                     "43": 63,

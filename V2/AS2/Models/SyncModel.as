@@ -1,4 +1,5 @@
 ﻿import Core.MovieClipUtil;
+import Core.ArrayUtil;
 
 import Types.SyncSection;
 
@@ -10,6 +11,8 @@ class Models.SyncModel {
 	
 	public static var markedSection : SyncSection;
 	public static var sections : Array = [];
+	
+	public static var playingSectionChild : MovieClip;
 	
 	public static function getInterpolatedPosition() : Number {
 		var currentFrame : Number = MovieClipUtil.getCurrentFrame(childSelected);
@@ -67,11 +70,15 @@ class Models.SyncModel {
 		var section : SyncSection = sections[_index];
 		var child : MovieClip = MovieClipUtil.getChildFromPath(animation, section.childPath);
 		
-		if (child == null || section.isFrameWithinSection(MovieClipUtil.getCurrentFrame(child)) == false) {
+		if (child == null) {
 			return false;
 		}
 		
-		var matchesActiveWhile : Boolean = true;
+		if (section.isFrameWithinSection(MovieClipUtil.getCurrentFrame(child)) == false || MovieClipUtil.getTotalFrames(child) < section.lastFrame) {
+			return false;
+		}
+		
+		var canPlay : Boolean = true;
 		if (section.activeWhile != null) {
 			for (var key : String in section.activeWhile) {
 				var parent : MovieClip;
@@ -79,12 +86,12 @@ class Models.SyncModel {
 					parent = animation;
 				}
 				else {
-					var pathToParent : Array = section.childPath.slice(0, section.childPath.indexOf(key) + 1);
+					var pathToParent : Array = section.childPath.slice(0, ArrayUtil.indexOf(section.childPath, key) + 1);
 					parent = MovieClipUtil.getChildFromPath(animation, pathToParent);
 				}
 				
 				if (parent == null) {
-					matchesActiveWhile = false;
+					canPlay = false;
 					break;
 				}
 				
@@ -92,21 +99,24 @@ class Models.SyncModel {
 				var parentTotalFrames : Number = MovieClipUtil.getTotalFrames(parent);
 				
 				if (section.activeWhile[key].frame != null && parentCurrentFrame != section.activeWhile[key].frame) {
-					matchesActiveWhile = false;
+					canPlay = false;
 				}
 				if (section.activeWhile[key].from != null && parentCurrentFrame < section.activeWhile[key].from) {
-					matchesActiveWhile = false;
+					canPlay = false;
 				}
 				if (section.activeWhile[key].to != null && parentCurrentFrame > section.activeWhile[key].to) {
-					matchesActiveWhile = false;
+					canPlay = false;
 				}
 				if (section.activeWhile[key].total != null && parentTotalFrames != section.activeWhile[key].total) {
-					matchesActiveWhile = false;
+					canPlay = false;
+				}
+				if (section.activeWhile[key].frames != null && ArrayUtil.indexOf(section.activeWhile[key].frames, parentCurrentFrame) < 0) {
+					canPlay = false;
 				}
 			}
 		}
 		
-		return matchesActiveWhile;
+		return canPlay;
 	}
 	
 	public static function getMilisecondsForFrame(_frame : Number) : Number {
@@ -115,8 +125,7 @@ class Models.SyncModel {
 	
 	public static function getNumberOfTimesToRepeatSection(_sectionIndex : Number) : Number {
 		var section : SyncSection = sections[_sectionIndex];
-		var framesDelta : Number = section.lastFrame - section.firstFrame;
-		var durationMiliseconds : Number = getMilisecondsForFrame(framesDelta);
+		var durationMiliseconds : Number = getMilisecondsForFrame(section.framesDelta);
 		var minPlayDurationMiliseconds : Number = 3000;
 		return Math.ceil(minPlayDurationMiliseconds / durationMiliseconds);
 	}
@@ -130,10 +139,9 @@ class Models.SyncModel {
 			miliseconds.push(totalDurationMiliseconds);
 			
 			var section : SyncSection = sections[i];
-			var framesDelta : Number = section.lastFrame - section.firstFrame;
 			var repeatCount : Number = getNumberOfTimesToRepeatSection(i);
 			
-			totalDurationMiliseconds += milisecondsBetweenSections + getMilisecondsForFrame(framesDelta * repeatCount);
+			totalDurationMiliseconds += milisecondsBetweenSections + getMilisecondsForFrame(section.framesDelta * repeatCount);
 		}
 		
 		return miliseconds;

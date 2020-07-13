@@ -1,0 +1,140 @@
+{
+    "width": 550,
+    "height": 400,
+    "fps": 30,
+    
+    "startFrame": 269,
+    
+    "csv": "https://firebasestorage.googleapis.com/v0/b/handy-gamer.appspot.com/o/hentaikey-girl-2-v2.csv?alt=media&token=5fea63e8-cce7-47ea-94d6-1939da52e300",
+    
+    "modifiers": [
+        { // Everything before lick fast
+            "action": "decrease",
+            "variable": "countVar",
+            "by": 1,
+            "every": 20,
+            "when": {
+                "animation": "frame",
+                "lessThan": 469
+            }
+        },
+        { // Lick fast
+            "action": "decrease",
+            "variable": "countVar",
+            "by": 2,
+            "every": 10,
+            "when": {
+                "animation": "frame",
+                "greaterThan": 469,
+                "lessThan": 494
+            }
+        },
+        { // Titfuck fast!!
+            "action": "decrease",
+            "variable": "countVar",
+            "by": 3,
+            "every": 5,
+            "when": {
+                "animation": "frame",
+                "greaterThan": 494,
+                "lessThan": 501
+            }
+        }
+    ],
+
+    "parts": [
+        {
+            "path": [],
+            "tags": [],
+            "activeWhile": {
+    
+            },
+            "sections": [
+                { // Titfuck slow
+                    "324": 60,
+                    "335": 78,
+                    "341": 40,
+                    "362": 60
+                },
+                { // Titfuck
+                    "364": 56,
+                    "370": 74,
+                    "375": 27,
+                    "386": 56
+                },
+                { // Grind
+                    "388": 66,
+                    "396": 17,
+                    "405": 65,
+                    "414": 30,
+                    "422": 66
+                },
+                { // Lick
+                    "449": 80,
+                    "455": 67,
+                    "458": 100,
+                    "467": 80
+                },
+                { // Lick fast
+                    "469": 70,
+                    "471": 98,
+                    "478": 70
+                },
+                { // Titfuck fast
+                    "480": 65,
+                    "486": 8,
+                    "492": 65
+                },
+                { // Titfuck fast!!
+                    "494": 65,
+                    "497": 17,
+                    "501": 65
+                },
+                { // Transition to before cum
+                    "503": 55,
+                    "509": 70,
+                    "528": 14
+                },
+                { // Before cum
+                    "529": 15,
+                    "531": 45,
+                    "533": 15
+                },
+                { // Cum
+                    "536": 56,
+                    "538": 71,
+                    "542": 21,
+                    "548": 54,
+                    "550": 71,
+                    "554": 23,
+                    "560": 52,
+                    "562": 73,
+                    "566": 18,
+                    "572": 54,
+                    "574": 73,
+                    "578": 20,
+                    "584": 53,
+                    "586": 71,
+                    "590": 23,
+                    "596": 50,
+                    "598": 71,
+                    "602": 16,
+                    "608": 50,
+                    "610": 72,
+                    "614": 16,
+                    "624": 53,
+                    "627": 72,
+                    "635": 17,
+                    "658": 56,
+                    "661": 72,
+                    "669": 17,
+                    "698": 67
+                },
+                { // Finished
+                    "699": 67,
+                    "752": 68
+                }
+            ]
+        }
+    ]
+}

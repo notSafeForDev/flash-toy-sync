@@ -24,7 +24,7 @@ class Core.SWFLoader {
 	}
 	
 	public function load(_path : String, _container : MovieClip, _onLoaded : Function) {
-		var self = this;
+		/* var self = this;
 		
 		var listener : Object = {};
 		var loader : MovieClipLoader = new MovieClipLoader();
@@ -42,6 +42,25 @@ class Core.SWFLoader {
 		
 		swf = _container.createEmptyMovieClip("", _container.getNextHighestDepth());
 		swf._lockroot = true;
-		loader.loadClip(_path, swf);
+		loader.loadClip(_path, swf); */
+		
+		var self = this;
+		
+		var listener : Object = {};
+		var loader : MovieClipLoader = new MovieClipLoader();
+		loader.addListener(listener);
+		
+		listener.onLoadInit = function() {
+			_onLoaded(_container);
+		}
+		
+		listener.onLoadError = function(target_mc : MovieClip, errorCode : String, httpStatus : Number) {
+			if (self.onError != null) {
+				self.onError(errorCode);
+			}
+		}
+		
+		_container._lockroot = true;
+		loader.loadClip(_path, _container);
 	}
 }

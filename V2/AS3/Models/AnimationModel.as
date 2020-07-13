@@ -5,8 +5,8 @@
 	public class AnimationModel {
 		
 		public static var hasData : Boolean = false;
-		public static var sourceWidth : Number;
-		public static var sourceHeight : Number;
+		public static var sourceWidth : Number = 550;
+		public static var sourceHeight : Number = 400;
 		
 		public static var animation : MovieClip;
 		public static var childSelected : MovieClip;

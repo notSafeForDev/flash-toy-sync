@@ -6,6 +6,7 @@
 	import Core.*;
 
 	import Models.AnimationModel;
+	import Models.SyncModel;
 
 	import Global.GlobalEvents;
 
@@ -75,6 +76,9 @@
 				
 				if (path.length > 0) {
 					fieldName += path[path.length - 1];
+					if (fieldName.indexOf("#") < 0) {
+						fieldName += " (" + MovieClipUtil.getChildIndex(children[i]) + ")";
+					}
 				}
 				else {
 					fieldName = "root";
@@ -87,6 +91,7 @@
 				element.TextFrame.text = currentFrame + "/" + totalFrames;
 				
 				MovieClipUtil.setVisible(element.Highlight, children[i] == AnimationModel.childSelected);
+				MovieClipUtil.setVisible(element.SyncIndicator, children[i] == SyncModel.playingSectionChild);
 				
 				fieldChildren.push(children[i]);
 			}

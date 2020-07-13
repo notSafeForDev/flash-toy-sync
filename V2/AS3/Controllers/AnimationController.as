@@ -83,11 +83,13 @@
 			
 			if (_key == Keyboard.UP || _key == Keyboard.W) {
 				AnimationModel.sourceHeight += 10;
+				trace(AnimationModel.sourceHeight);
 				fitAnimationOnScreen(AnimationModel.animation, AnimationModel.sourceWidth,  AnimationModel.sourceHeight);
 			}
 			
 			if (_key == Keyboard.DOWN || _key == Keyboard.S) {
 				AnimationModel.sourceHeight -= 10;
+				trace(AnimationModel.sourceHeight);
 				fitAnimationOnScreen(AnimationModel.animation, AnimationModel.sourceWidth,  AnimationModel.sourceHeight);
 			}
 		}

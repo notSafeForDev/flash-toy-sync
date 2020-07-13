@@ -93,6 +93,10 @@
 			return maxFrames;
 		}
 		
+		public static function getChildIndex(_movieClip) : Number {
+			return _movieClip.parent.getChildIndex(_movieClip);
+		}
+		
 		public static function hasNestedAnimations(_topParent : MovieClip) : Boolean {
 			return getMaxFramesInChildren(_topParent) > 1;
 		}
